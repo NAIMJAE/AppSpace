@@ -4,6 +4,7 @@ import 'package:calculator/data/view_models/theme_view_model.dart';
 import 'package:calculator/ui/widgets/main_appbar.dart';
 import 'package:calculator/ui/widgets/operator_button.dart';
 import 'package:calculator/ui/widgets/number_button.dart';
+import 'package:calculator/ui/widgets/theme_select_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -64,8 +65,14 @@ class _MainPageState extends ConsumerState<MainPage> {
     setState(() {});
   }
 
-  // 전체 계산 기록 보이기
+  // 테마 변경 모달 보이기
   void showSetting() {
+    isSetting = !isSetting;
+    setState(() {});
+  }
+
+  void changTheme({required String newTheme}) {
+    themeStateVM.setTheme(mode: newTheme);
     isSetting = !isSetting;
     setState(() {});
   }
@@ -235,7 +242,7 @@ class _MainPageState extends ConsumerState<MainPage> {
                       child: Container(
                         width: double.infinity,
                         height: double.infinity,
-                        color: Colors.transparent,
+                        color: themeState.displayColor.withOpacity(0.2),
                       ),
                     ),
                     Positioned(
@@ -251,8 +258,8 @@ class _MainPageState extends ConsumerState<MainPage> {
                             boxShadow: [
                               BoxShadow(
                                 color: themeState.displayColor,
-                                blurRadius: 4,
-                                spreadRadius: -2,
+                                blurRadius: 2,
+                                spreadRadius: -1,
                                 offset: Offset(0, -2),
                               )
                             ]),
@@ -277,47 +284,12 @@ class _MainPageState extends ConsumerState<MainPage> {
               ),
             if (isSetting)
               Positioned(
+                left: 0,
                 top: 0,
-                right: 0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xFFE9E9E9),
-                  ),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    child: Column(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            themeStateVM.setTheme(mode: 'Light');
-                            isSetting = !isSetting;
-                            setState(() {});
-                          },
-                          child: const Text('Light',
-                              style: TextStyle(fontSize: 16)),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            themeStateVM.setTheme(mode: 'Dark');
-                            isSetting = !isSetting;
-                            setState(() {});
-                          },
-                          child: const Text('Dark',
-                              style: TextStyle(fontSize: 16)),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            themeStateVM.setTheme(mode: 'Colorful');
-                            isSetting = !isSetting;
-                            setState(() {});
-                          },
-                          child: const Text('Colorful',
-                              style: TextStyle(fontSize: 16)),
-                        ),
-                      ],
-                    ),
-                  ),
+                child: ThemeSelectBox(
+                  function: (val) => changTheme(newTheme: val),
+                  backgroundColor: themeState.backgroundColor,
+                  textColor: themeState.displayColor,
                 ),
               )
           ],

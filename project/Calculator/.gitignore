@@ -41,3 +41,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# 키스토어 관련 파일 Git에 업로드 방지
+android/app/*.jks
+android/key.properties

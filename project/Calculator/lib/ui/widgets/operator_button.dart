@@ -24,15 +24,19 @@ class CalButton extends StatefulWidget {
 
 class _CalButtonState extends State<CalButton> {
   bool isPressed = false;
+  late Color pushedColor;
+
+  Color darkenColor(Color color, [double amount = 0.2]) {
+    final hsl = HSLColor.fromColor(color);
+    final darker = hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
+    return darker.toColor();
+  }
 
   void _onTapDown(TapDownDetails details) {
     setState(() {
       isPressed = true;
     });
-  }
-
-  void _onTapUp(TapUpDetails details) {
-    Future.delayed(const Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(milliseconds: 200), () {
       setState(() {
         isPressed = false;
       });
@@ -42,16 +46,17 @@ class _CalButtonState extends State<CalButton> {
 
   @override
   Widget build(BuildContext context) {
+    pushedColor = darkenColor(widget.btnColor);
+
     return GestureDetector(
       onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
         margin: const EdgeInsets.all(4),
         width: widget.width,
         height: widget.height,
         decoration: BoxDecoration(
-          color: isPressed ? Colors.white.withOpacity(0.1) : widget.btnColor,
+          color: isPressed ? pushedColor : widget.btnColor,
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(

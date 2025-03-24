@@ -45,16 +45,16 @@ class ThemeViewModel extends AsyncNotifier<ThemeState> {
           operatorColor: Colors.black,
           controlBtnColor: Color(0xFFe3e3e1),
         );
-      case 'Colorful':
+      case 'Pastel':
         return ThemeState(
           themeMode: mode,
-          backgroundColor: Color(0xFF3EEEA),
-          displayColor: Colors.black,
-          numberBtnColor: Color(0xFFB8E8FC),
-          numberColor: Colors.black,
-          operatorBtnColor: Color(0xFFFF8080),
-          operatorColor: Colors.black,
-          controlBtnColor: Color(0xFFCDFAD5),
+          backgroundColor: Color(0xFFE3F2FD), // 연한 스카이블루
+          displayColor: Color(0xFF2E2E2E),
+          numberBtnColor: Color(0xFFB3E5FC), // 파스텔 블루
+          numberColor: Color(0xFF2E2E2E),
+          operatorBtnColor: Color(0xFFFF8A80), // 파스텔 레드
+          operatorColor: Color(0xFF2E2E2E),
+          controlBtnColor: Color(0xFFB0F1E1), // 더 밝은 민트 그린
         );
       default:
         return ThemeState(
