@@ -35,52 +35,114 @@ class _RepeatPageState extends ConsumerState<RepeatPage> {
 
   @override
   Widget build(BuildContext context) {
+    double dragStartX = 0.0;
+    double dragDistance = 0.0;
+    const double swipeThreshold = 50.0;
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color(0XFFE9E9E9),
         appBar: repeatAppbar(context: context),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: ListView(
-            children: [
-              Column(
-                children: [
-                  _titleBox(title: '매일 반복'),
-                  ...repeatTaskMap['매일']!.entries.map((entry) {
-                    final repeatTask = entry.key;
-                    final details = entry.value;
-                    return EachRepeatBox(
-                      key: UniqueKey(),
-                      repeatTask: repeatTask,
-                      details: details,
-                      loadFunction: () => _loadRepeatTask(),
-                    );
-                  }).toList(),
-                  _titleBox(title: '매주 반복'),
-                  ...repeatTaskMap['요일']!.entries.map((entry) {
-                    final repeatTask = entry.key;
-                    final details = entry.value;
-                    return EachRepeatBox(
-                      key: UniqueKey(),
-                      repeatTask: repeatTask,
-                      details: details,
-                      loadFunction: () => _loadRepeatTask(),
-                    );
-                  }).toList(),
-                  _titleBox(title: '매월 반복'),
-                  ...repeatTaskMap['일자']!.entries.map((entry) {
-                    final repeatTask = entry.key;
-                    final details = entry.value;
-                    return EachRepeatBox(
-                      key: UniqueKey(),
-                      repeatTask: repeatTask,
-                      details: details,
-                      loadFunction: () => _loadRepeatTask(),
-                    );
-                  }).toList(),
-                ],
-              )
-            ],
+        body: GestureDetector(
+          onHorizontalDragStart: (details) {
+            dragStartX = details.globalPosition.dx;
+          },
+          onHorizontalDragUpdate: (details) {
+            dragDistance = details.globalPosition.dx - dragStartX;
+          },
+          onHorizontalDragEnd: (details) {
+            if (dragDistance > swipeThreshold) {
+              // -> 오른쪽
+              Navigator.pop(context);
+            }
+            // 리셋
+            dragDistance = 0;
+            dragStartX = 0;
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: ListView(
+              children: [
+                Column(
+                  children: [
+                    // 매일 반복
+                    _titleBox(title: '매일 반복'),
+                    if (repeatTaskMap['매일']!.isNotEmpty)
+                      ...repeatTaskMap['매일']!.entries.map((entry) {
+                        final repeatTask = entry.key;
+                        final details = entry.value;
+                        return EachRepeatBox(
+                          key: UniqueKey(),
+                          repeatTask: repeatTask,
+                          details: details,
+                          loadFunction: () => _loadRepeatTask(),
+                        );
+                      }).toList(),
+                    if (repeatTaskMap['매일']!.isEmpty)
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('반복 일정이 없습니다.'),
+                          Image.asset(
+                            'assets/images/nemojin_question.png',
+                            scale: 4,
+                          ),
+                        ],
+                      ),
+
+                    // 매주 반복
+                    _titleBox(title: '매주 반복'),
+                    if (repeatTaskMap['요일']!.isNotEmpty)
+                      ...repeatTaskMap['요일']!.entries.map((entry) {
+                        final repeatTask = entry.key;
+                        final details = entry.value;
+                        return EachRepeatBox(
+                          key: UniqueKey(),
+                          repeatTask: repeatTask,
+                          details: details,
+                          loadFunction: () => _loadRepeatTask(),
+                        );
+                      }).toList(),
+                    if (repeatTaskMap['요일']!.isEmpty)
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('반복 일정이 없습니다.'),
+                          Image.asset(
+                            'assets/images/nemojin_question.png',
+                            scale: 4,
+                          ),
+                        ],
+                      ),
+
+                    // 매월 반복
+                    _titleBox(title: '매월 반복'),
+                    if (repeatTaskMap['일자']!.isNotEmpty)
+                      ...repeatTaskMap['일자']!.entries.map((entry) {
+                        final repeatTask = entry.key;
+                        final details = entry.value;
+                        return EachRepeatBox(
+                          key: UniqueKey(),
+                          repeatTask: repeatTask,
+                          details: details,
+                          loadFunction: () => _loadRepeatTask(),
+                        );
+                      }).toList(),
+                    if (repeatTaskMap['일자']!.isEmpty)
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('반복 일정이 없습니다.'),
+                          Image.asset(
+                            'assets/images/nemojin_question.png',
+                            scale: 4,
+                          ),
+                        ],
+                      ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),

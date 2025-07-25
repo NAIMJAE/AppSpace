@@ -46,10 +46,11 @@ class ParseRepeat {
         result = '매일';
       case 1:
       case 2:
-        result = '매주 ${ParseDate.weekIntListParseToString(week: interval)}요일';
+        result =
+            '매주 ${ParseDate.weekIntListParseToString(week: interval).replaceAll(RegExp(r'^,|,$'), '')}요일';
       case 3:
       case 4:
-        result = '매달 $interval일';
+        result = '매달 ${interval.replaceAll(RegExp(r'^,|,$'), '')}일';
     }
     return result;
   }

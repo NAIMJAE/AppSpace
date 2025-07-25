@@ -88,6 +88,7 @@ class _WritePageState extends ConsumerState<WritePage> {
           repeatId: repeatId,
           title: title,
           startDate: taskDate,
+          time: ParseDate.stringParseToDateTime(date: taskDate, time: taskTime),
           color: taskColor,
           type: ParseRepeat.repeatTypeStringToInt(type: repeat),
           interval: regularMap[repeat],
@@ -100,6 +101,7 @@ class _WritePageState extends ConsumerState<WritePage> {
           repeatId: RepeatTask.createRepeatId(),
           title: title,
           startDate: taskDate,
+          time: ParseDate.stringParseToDateTime(date: taskDate, time: taskTime),
           color: taskColor,
           type: ParseRepeat.repeatTypeStringToInt(type: repeat),
           interval: regularMap[repeat],
@@ -125,6 +127,8 @@ class _WritePageState extends ConsumerState<WritePage> {
             taskId: taskId,
             title: title,
             date: taskDate,
+            time:
+                ParseDate.stringParseToDateTime(date: taskDate, time: taskTime),
             isCompleted: false,
             color: taskColor),
         taskDetails: taskDetails);
@@ -269,7 +273,7 @@ class _WritePageState extends ConsumerState<WritePage> {
         selectedDays.sort((a, b) => int.parse(a).compareTo(int.parse(b)));
 
         regularMap['일자 반복'] =
-            selectedDays.isEmpty ? null : selectedDays.join(',');
+            selectedDays.isEmpty ? null : ',${selectedDays.join(',')},';
       }
     });
   }
@@ -282,60 +286,81 @@ class _WritePageState extends ConsumerState<WritePage> {
 
   @override
   Widget build(BuildContext context) {
+    double dragStartX = 0.0;
+    double dragDistance = 0.0;
+    const double swipeThreshold = 50.0;
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color(0XFFE9E9E9),
         appBar: writeAppbar(context: context),
-        body: Padding(
-          padding: const EdgeInsets.only(bottom: 16, right: 16, left: 16),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 12),
-                // 새로운 할일
-                _writeCard(childWidget: _dateAndTitle()),
-                const SizedBox(height: 12),
+        body: GestureDetector(
+          onHorizontalDragStart: (details) {
+            dragStartX = details.globalPosition.dx;
+          },
+          onHorizontalDragUpdate: (details) {
+            dragDistance = details.globalPosition.dx - dragStartX;
+          },
+          onHorizontalDragEnd: (details) {
+            if (dragDistance > swipeThreshold) {
+              // -> 오른쪽
+              Navigator.pop(context);
+            }
+            // 리셋
+            dragDistance = 0;
+            dragStartX = 0;
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16, right: 16, left: 16),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 12),
+                  // 새로운 할일
+                  _writeCard(childWidget: _dateAndTitle()),
+                  const SizedBox(height: 12),
 
-                // 세부 항목
-                _writeCard(childWidget: _taskDetailBox()),
-                const SizedBox(height: 12),
+                  // 세부 항목
+                  _writeCard(childWidget: _taskDetailBox()),
+                  const SizedBox(height: 12),
 
-                // 색상 선택
-                _writeCard(childWidget: _taskColorBox()),
-                const SizedBox(height: 12),
+                  // 색상 선택
+                  _writeCard(childWidget: _taskColorBox()),
+                  const SizedBox(height: 12),
 
-                // 정기 항목
-                _writeCard(childWidget: _regularTaskBox()),
-                const SizedBox(height: 12),
+                  // 정기 항목
+                  _writeCard(childWidget: _regularTaskBox()),
+                  const SizedBox(height: 12),
 
-                SizedBox(
-                  width: double.infinity,
-                  child: GestureDetector(
-                    onTap: () => _addTaskComplete(),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: const Color(0XFF27c47d),
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0XFFB2B2B2),
-                            blurRadius: 4,
-                            offset: Offset(1, 1),
+                  SizedBox(
+                    width: double.infinity,
+                    child: GestureDetector(
+                      onTap: () => _addTaskComplete(),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0XFF27c47d),
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0XFFB2B2B2),
+                              blurRadius: 4,
+                              offset: Offset(1, 1),
+                            ),
+                          ],
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '일정 추가',
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '일정 추가',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
                         ),
                       ),
                     ),
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
           ),
         ),
@@ -370,8 +395,8 @@ class _WritePageState extends ConsumerState<WritePage> {
                 return GestureDetector(
                   onTap: () => _selectTaskColor(color: colorList[index]),
                   child: Container(
-                    width: 30,
-                    height: 30,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       color: Color(int.parse(colorList[index])),
                       borderRadius: BorderRadius.circular(6),
@@ -515,7 +540,8 @@ class _WritePageState extends ConsumerState<WritePage> {
         if (regularMap.entries.first.value != null)
           Padding(
             padding: const EdgeInsets.only(top: 16.0),
-            child: Text('매달 ${regularMap.entries.first.value}일에 반복됩니다.'),
+            child: Text(
+                '매달 ${regularMap.entries.first.value?.replaceAll(RegExp(r'^,|,$'), '')}일에 반복됩니다.'),
           ),
       ],
     );
@@ -677,6 +703,7 @@ class _WritePageState extends ConsumerState<WritePage> {
                 Text(
                   '추가',
                   style: TextStyle(
+                    fontSize: 16,
                     color: Color(0XFF222831),
                   ),
                 ),
@@ -696,7 +723,7 @@ class _WritePageState extends ConsumerState<WritePage> {
         children: [
           const Icon(
             Icons.check,
-            size: 20,
+            size: 24,
             color: Color(0XFF222831),
           ),
           const SizedBox(width: 8),
@@ -704,7 +731,7 @@ class _WritePageState extends ConsumerState<WritePage> {
             child: TextField(
               controller: controller,
               strutStyle: StrutStyle.disabled,
-              style: const TextStyle(fontSize: 14, color: Color(0XFF222831)),
+              style: const TextStyle(fontSize: 16, color: Color(0XFF222831)),
               decoration: const InputDecoration(
                 hintText: '세부 항목',
                 isDense: true,
@@ -719,7 +746,7 @@ class _WritePageState extends ConsumerState<WritePage> {
             onTap: () => _removeTaskDetail(index: index),
             child: const Icon(
               Icons.close,
-              size: 20,
+              size: 24,
               color: Color(0XFF222831),
             ),
           ),
@@ -761,14 +788,14 @@ class _WritePageState extends ConsumerState<WritePage> {
                     children: [
                       const Icon(
                         Icons.date_range_rounded,
-                        size: 20,
+                        size: 24,
                         color: Color(0XFF222831),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         ParseDate.dateTimeToString(taskDate),
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 16,
                           color: Color(0XFF222831),
                         ),
                       ),
@@ -794,14 +821,14 @@ class _WritePageState extends ConsumerState<WritePage> {
                     children: [
                       const Icon(
                         Icons.access_time,
-                        size: 20,
+                        size: 24,
                         color: Color(0XFF222831),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         taskTime ?? '선택 안함',
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 16,
                           color: Color(0XFF222831),
                         ),
                       ),
@@ -820,7 +847,7 @@ class _WritePageState extends ConsumerState<WritePage> {
             children: [
               const Icon(
                 Icons.work_history_outlined,
-                size: 20,
+                size: 24,
                 color: Color(0XFF222831),
               ),
               const SizedBox(width: 8),
@@ -829,7 +856,7 @@ class _WritePageState extends ConsumerState<WritePage> {
                   controller: _titleController,
                   strutStyle: StrutStyle.disabled,
                   style:
-                      const TextStyle(fontSize: 14, color: Color(0XFF222831)),
+                      const TextStyle(fontSize: 16, color: Color(0XFF222831)),
                   decoration: const InputDecoration(
                     hintText: '제목',
                     isDense: true,

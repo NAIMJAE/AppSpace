@@ -93,6 +93,7 @@ class _EachRepeatBoxState extends ConsumerState<EachRepeatBox>
         }
 
         setState(() {
+          isMore = false;
           isDetail = !isDetail;
         });
       },
@@ -165,7 +166,7 @@ class _EachRepeatBoxState extends ConsumerState<EachRepeatBox>
                                   },
                                   child: const Icon(
                                     Icons.more_vert,
-                                    size: 16,
+                                    size: 24,
                                     color: Color(0XFFB2B2B2),
                                   ),
                                 ),
@@ -185,7 +186,7 @@ class _EachRepeatBoxState extends ConsumerState<EachRepeatBox>
                                       },
                                       child: const Icon(
                                         Icons.mode,
-                                        size: 20,
+                                        size: 24,
                                         color: Color(0XFF27c47d),
                                       ),
                                     ),
@@ -207,7 +208,7 @@ class _EachRepeatBoxState extends ConsumerState<EachRepeatBox>
                                       },
                                       child: const Icon(
                                         Icons.delete_forever,
-                                        size: 20,
+                                        size: 24,
                                         color: Colors.red,
                                       ),
                                     ),

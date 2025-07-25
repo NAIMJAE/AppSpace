@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/large_widget_layout"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#80FFFFFF"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <!-- 왼쪽: 오늘 일정 -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="top">
+
+        <TextView
+            android:id="@+id/date_text_today"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3월 24일"
+            android:textSize="13sp"
+            android:textColor="#000000"/>
+
+        <TextView android:id="@+id/task11" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:visibility="gone"
+            android:textSize="12sp" android:textColor="#000000"/>
+        <TextView android:id="@+id/task12" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:visibility="gone"
+            android:textSize="12sp" android:textColor="#000000"/>
+        <TextView android:id="@+id/task13" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:visibility="gone"
+            android:textSize="12sp" android:textColor="#000000"/>
+        <TextView android:id="@+id/task14" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:visibility="gone"
+            android:textSize="12sp" android:textColor="#000000"/>
+        <TextView android:id="@+id/task15" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:visibility="gone"
+            android:textSize="12sp" android:textColor="#000000"/>
+    </LinearLayout>
+
+    <!-- 세로 구분선 -->
+    <TextView
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:text=""
+        android:contentDescription="세로 구분선"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
+
+    <!-- 오른쪽: 내일 일정 -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="top">
+
+        <TextView
+            android:id="@+id/date_text_tomorrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3월 24일"
+            android:textSize="13sp"
+            android:textColor="#000000"/>
+
+        <TextView android:id="@+id/task21" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:visibility="gone"
+            android:textSize="12sp" android:textColor="#000000"/>
+        <TextView android:id="@+id/task22" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:visibility="gone"
+            android:textSize="12sp" android:textColor="#000000"/>
+        <TextView android:id="@+id/task23" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:visibility="gone"
+            android:textSize="12sp" android:textColor="#000000"/>
+        <TextView android:id="@+id/task24" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:visibility="gone"
+            android:textSize="12sp" android:textColor="#000000"/>
+        <TextView android:id="@+id/task25" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:visibility="gone"
+            android:textSize="12sp" android:textColor="#000000"/>
+    </LinearLayout>
+</LinearLayout>

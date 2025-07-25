@@ -125,7 +125,8 @@ class _EachTaskBoxState extends ConsumerState<EachTaskBox> {
                   children: [
                     // 카드 내부 일정 제목 Row
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 8),
                       decoration: BoxDecoration(
                         border: Border(
                           bottom: subTasks.isNotEmpty
@@ -194,7 +195,7 @@ class _EachTaskBoxState extends ConsumerState<EachTaskBox> {
                                   },
                                   child: const Icon(
                                     Icons.more_vert,
-                                    size: 16,
+                                    size: 24,
                                     color: Color(0XFFB2B2B2),
                                   ),
                                 ),
@@ -216,7 +217,7 @@ class _EachTaskBoxState extends ConsumerState<EachTaskBox> {
                                       },
                                       child: const Icon(
                                         Icons.mode,
-                                        size: 20,
+                                        size: 24,
                                         color: Color(0XFF27c47d),
                                       ),
                                     ),
@@ -240,7 +241,7 @@ class _EachTaskBoxState extends ConsumerState<EachTaskBox> {
                                       },
                                       child: const Icon(
                                         Icons.delete_forever,
-                                        size: 20,
+                                        size: 24,
                                         color: Colors.red,
                                       ),
                                     ),
@@ -307,7 +308,7 @@ class _EachTaskBoxState extends ConsumerState<EachTaskBox> {
       onTap: () => _clickTaskCheckBox(),
       child: Container(
         width: 54,
-        height: 24,
+        height: 28,
         decoration: BoxDecoration(
           color: task.isCompleted
               ? const Color(0XFF27c47d)
@@ -362,8 +363,8 @@ class _EachTaskBoxState extends ConsumerState<EachTaskBox> {
     return GestureDetector(
       onTap: () => _clickDetailCheckBox(taskDetail: subTask),
       child: Container(
-        width: 20,
-        height: 20,
+        width: 24,
+        height: 24,
         decoration: BoxDecoration(
           border: Border.all(
               color: isChecked ? Colors.transparent : const Color(0XFFB2B2B2),

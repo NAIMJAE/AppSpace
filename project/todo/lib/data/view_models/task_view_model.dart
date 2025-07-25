@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo/data/database/dao/task_dao.dart';
+import 'package:todo/data/local/task_widget_storage.dart';
 import 'package:todo/data/models/task_model/repeat_task.dart';
 import 'package:todo/data/models/task_model/task.dart';
 import 'package:todo/data/models/task_model/task_detail.dart';
@@ -16,7 +17,6 @@ class TaskViewModel extends Notifier<List<TaskGroup>> {
   List<TaskGroup> build() {
     selectedDate =
         DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-    getTaskList();
     return [];
   }
 
@@ -119,8 +119,6 @@ class TaskViewModel extends Notifier<List<TaskGroup>> {
       return 0; // 같은 값일 경우 순서 유지
     });
 
-    logger.i('재랜더링');
-
     state.clear();
     state.addAll(taskGroupList);
   }
@@ -172,7 +170,6 @@ class TaskViewModel extends Notifier<List<TaskGroup>> {
       }
     }
 
-    logger.i(repeatTaskMap);
     return repeatTaskMap;
     // Map {'매일' : Map {repeatTask : List<taskDetail>} }
   }
@@ -237,6 +234,8 @@ class TaskViewModel extends Notifier<List<TaskGroup>> {
     bool allNotCompleted = _checkDetailListStatus(
         taskDetail: taskDetail, clickDetail: clickDetail, checkStatus: false);
 
+    logger.i(allNotCompleted);
+
     // 반복 일정 & 클릭한 세부 사항이 완료
     if (isRepeat && isDetailCompleted) {
       clickDetail.updateIsCompleted();
@@ -244,6 +243,11 @@ class TaskViewModel extends Notifier<List<TaskGroup>> {
       if (allNotCompleted) {
         // 모두 미완료
         await _taskDao.deleteTask(taskId: task.taskId);
+
+        if (isTaskCompleted) {
+          task.updateIsCompleted();
+          await _taskDao.updateTask(task: task);
+        }
       } else {
         // 다른 항목 중 완료가 있음
         bool result = await _taskDao.updateTaskDetail(taskDetail: clickDetail);
@@ -259,6 +263,7 @@ class TaskViewModel extends Notifier<List<TaskGroup>> {
     // 반복 일정 & 클릭한 세부 사항이 미완료
     if (isRepeat && !isDetailCompleted) {
       clickDetail.updateIsCompleted();
+      bool result = false;
       if (allNotCompleted) {
         // 세부 사항들 중 첫번째 완료 처리
         List<TaskDetail> newTaskDetail = taskDetail.map((each) {
@@ -275,17 +280,19 @@ class TaskViewModel extends Notifier<List<TaskGroup>> {
           taskDetails: newTaskDetail,
         );
 
-        await _taskDao.insertTask(taskGroup: taskGroup);
+        result = await _taskDao.insertTask(taskGroup: taskGroup);
         await _replaceTaskGroup(taskGroup: taskGroup);
       } else {
         // 다른 항목 중 완료가 있음
-        bool result = await _taskDao.updateTaskDetail(taskDetail: clickDetail);
+        result = await _taskDao.updateTaskDetail(taskDetail: clickDetail);
+      }
 
-        if (result && allCompleted) {
-          // 모든 세부 항목이 완료
-          task.updateIsCompleted();
-          await _taskDao.updateTask(task: task);
-        }
+      logger.i(result);
+
+      if (result && allCompleted) {
+        // 모든 세부 항목이 완료
+        task.updateIsCompleted();
+        await _taskDao.updateTask(task: task);
       }
     }
 
@@ -378,15 +385,22 @@ class TaskViewModel extends Notifier<List<TaskGroup>> {
     }
   }
 
+  /// 일정 수정
+  /// @param
+  /// - task : 수정할 일정
   Future<bool> modifyTask({required Task task}) async {
-    return await _taskDao.updateTask(task: task);
+    bool result = await _taskDao.updateTask(task: task);
+    updateHomeWidget();
+    return result;
   }
 
   /// 반복 일정 수정
   /// @param
   /// - repeatTask : 수정할 반복 일정
   Future<bool> modifyRepeatTask({required RepeatTask repeatTask}) async {
-    return await _taskDao.updateRepeatTask(repeatTask: repeatTask);
+    bool result = await _taskDao.updateRepeatTask(repeatTask: repeatTask);
+    updateHomeWidget();
+    return result;
   }
 
   // [▶ 삽입 ◀]
@@ -396,6 +410,7 @@ class TaskViewModel extends Notifier<List<TaskGroup>> {
   Future<void> addTask({required TaskGroup taskGroup}) async {
     await _taskDao.insertTask(taskGroup: taskGroup);
     await getTaskList();
+    updateHomeWidget();
   }
 
   /// 반복 일정 삽입
@@ -408,6 +423,7 @@ class TaskViewModel extends Notifier<List<TaskGroup>> {
     await _taskDao.insertRepeatTask(
         repeatTask: repeatTask, taskDetails: taskDetails);
     await getTaskList();
+    updateHomeWidget();
   }
 
   /// 세부 일정 삽입
@@ -445,18 +461,24 @@ class TaskViewModel extends Notifier<List<TaskGroup>> {
     for (Task each in newTaskList) {
       await _taskDao.updateTask(task: each);
     }
+
+    updateHomeWidget();
   }
 
   /// 반복 일정 테이블에서 반복 일정 삭제
   /// @param
   /// - repeatId : 삭제할 반복 일정 Id값
   Future<bool> removeRepeatTaskById({required String repeatId}) async {
-    return await _taskDao.deleteRepeatTaskById(repeatId: repeatId);
+    bool result = await _taskDao.deleteRepeatTaskById(repeatId: repeatId);
+    updateHomeWidget();
+    return result;
   }
 
-  ///
+  /// 비정기 일정 + 일정 세부 사항 함께 삭제
   Future<bool> removeTaskGroup({required String taskId}) async {
-    return await _taskDao.deleteTaskGroup(taskId: taskId);
+    bool result = await _taskDao.deleteTaskGroup(taskId: taskId);
+    updateHomeWidget();
+    return result;
   }
 
   /// 일정 삭제
@@ -474,6 +496,16 @@ class TaskViewModel extends Notifier<List<TaskGroup>> {
       await removeRepeatTaskById(repeatId: removeRepeatId);
       await removeRepeatIdAtTask(repeatId: removeRepeatId);
     }
+
+    updateHomeWidget();
+  }
+
+  // [▶ 홈 위젯 ◀]
+  Future<void> updateHomeWidget() async {
+    // 오늘 날짜 +7일 데이터 조회
+    List<Map<String, dynamic>> taskList = await _taskDao.selectTaskAfter7Day();
+    final storage = TaskWidgetStorage();
+    await storage.saveTaskList(taskList);
   }
 }
 

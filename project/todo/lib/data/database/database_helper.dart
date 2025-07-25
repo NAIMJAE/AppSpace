@@ -29,12 +29,36 @@ class DatabaseHelper {
     // 데이터베이스가 없으면 새로 생성, 존재하면 열기
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await _createTables(db);
-        await _insertDummyData(db); // ✅ 더미 데이터 삽입
+        //await _insertDummyData(db); // 더미 데이터 삽입
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await _migrateOldIntervalFormat(db); // 마이그레이션 실행
+        }
       },
     );
+  }
+
+  Future<void> _migrateOldIntervalFormat(Database db) async {
+    final result = await db.query('repeat_task');
+    for (final row in result) {
+      final id = row['repeatId'];
+      final interval = row['interval'] as String?;
+      if (interval != null &&
+          !interval.startsWith(',') &&
+          !interval.endsWith(',')) {
+        final newInterval = ',$interval,';
+        await db.update(
+          'repeat_task',
+          {'interval': newInterval},
+          where: 'repeatId = ?',
+          whereArgs: [id],
+        );
+      }
+    }
   }
 
   Future<void> _createTables(Database db) async {

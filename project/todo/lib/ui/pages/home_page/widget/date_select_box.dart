@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:todo/data/view_models/task_view_model.dart';
 import 'package:todo/ui/pages/repeat_page/repeat_page.dart';
 import 'package:todo/ui/widgets/date_picker_widget.dart';
 import 'package:todo/util/parse_date.dart';
@@ -20,7 +21,32 @@ class _DateSelectBoxState extends ConsumerState<DateSelectBox> {
   @override
   void initState() {
     super.initState();
-    startDate = ParseDate.dateTimeToStartDate(widget.selectedDate);
+    //startDate = ParseDate.dateTimeToStartDate(widget.selectedDate);
+    startDate = ParseDate.dateTimeToStartDate(
+        ref.read(taskProvider.notifier).selectedDate);
+  }
+
+  @override
+  void didUpdateWidget(covariant DateSelectBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final selected = ref.read(taskProvider.notifier).selectedDate;
+
+    final currentWeek = _startOfWeek(startDate);
+    final selectedWeek = _startOfWeek(selected);
+
+    // 주가 바뀌었는지 확인
+    if (selectedWeek != currentWeek) {
+      final difference = selectedWeek.difference(currentWeek).inDays;
+
+      if (difference.abs() == 7) {
+        _changeWeek(value: difference); // ✅ 기존 함수 재사용
+      }
+    }
+  }
+
+  DateTime _startOfWeek(DateTime date) {
+    return date.subtract(Duration(days: date.weekday % 7));
   }
 
   /// 좌우 버튼으로 주단위 변경 함수
@@ -49,12 +75,10 @@ class _DateSelectBoxState extends ConsumerState<DateSelectBox> {
               children: [
                 SizedBox(
                   width: cntWidth * 0.28,
-                  child: const Text(
-                    'NEMOJIN',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  height: cntWidth * 0.1,
+                  child: Image.asset(
+                    'assets/images/nemojin_todo_icon.png',
+                    alignment: Alignment.centerLeft,
                   ),
                 ),
                 GestureDetector(
@@ -205,7 +229,9 @@ class _DateSelectBoxState extends ConsumerState<DateSelectBox> {
                   style: TextStyle(
                     color: widget.selectedDate == date
                         ? Colors.white
-                        : const Color(0XFF222831),
+                        : date.day == DateTime.now().day
+                            ? const Color(0XFF27c47d)
+                            : const Color(0XFF222831),
                   ),
                 ),
               ),

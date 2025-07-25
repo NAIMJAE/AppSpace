@@ -47,7 +47,7 @@ class TaskDao {
          OR (type = 3 AND interval LIKE ?)
          OR (type = 4 AND interval LIKE ?)
       ''',
-      ['%$week%', '%$week%', '%$day%', '%$day%'],
+      ['%$week%', '%$week%', '%,$day,%', '%,$day,%'],
     );
 
     return result.map((map) => RepeatTask.fromMap(map)).toList();
@@ -117,17 +117,120 @@ class TaskDao {
     return result.map((map) => RepeatTask.fromMap(map)).toList();
   }
 
+  /// 홈 위젯 데이터 출력을 위한 일주일치 일정 조회
+  Future<List<Map<String, dynamic>>> selectTaskAfter7Day() async {
+    final db = await DatabaseHelper.instance.database;
+
+    final now = DateTime.now();
+    final today = ParseDate.dateTimeToString(now);
+    final sevenDaysLater =
+        ParseDate.dateTimeToString(now.add(const Duration(days: 7)));
+
+    final List<Map<String, dynamic>> taskResult = await db.rawQuery(
+      '''
+      SELECT * FROM tasks
+      WHERE date BETWEEN ? AND ?
+      ORDER BY date ASC
+      ''',
+      [today, sevenDaysLater],
+    );
+
+    List<Map<String, dynamic>> taskMap = taskResult
+        .map(
+          (each) => {
+            'title': each['title'],
+            'date': each['date'],
+            'time': each['time'],
+            'color': each['color'], //??
+            'repeatId': each['repeatId'],
+          },
+        )
+        .toList();
+
+    List<Map<String, dynamic>> repeatMap = [];
+    for (int i = 0; i < 8; i++) {
+      DateTime targetDate = now.add(Duration(days: i));
+      int day = targetDate.day;
+      int week = targetDate.weekday % 7;
+      final List<Map<String, dynamic>> repeatResult = await db.rawQuery(
+        '''
+        SELECT * FROM repeat_task
+        WHERE (type = 0) 
+           OR (type = 1 AND interval LIKE ?) 
+           OR (type = 2 AND interval LIKE ?)
+           OR (type = 3 AND interval LIKE ?)
+           OR (type = 4 AND interval LIKE ?)
+        ''',
+        ['%$week%', '%$week%', '%$day%', '%$day%'],
+      );
+      repeatMap.addAll(repeatResult
+          .map(
+            (each) => {
+              'title': each['title'],
+              'date': ParseDate.dateTimeToString(targetDate),
+              'time': each['time'],
+              'color': each['color'], //??
+              'repeatId': each['repeatId'],
+            },
+          )
+          .toList());
+    }
+
+    return mergeAndSortTasks(taskMap: taskMap, repeatMap: repeatMap);
+  }
+
+  /// 합치기
+  List<Map<String, dynamic>> mergeAndSortTasks({
+    required List<Map<String, dynamic>> taskMap,
+    required List<Map<String, dynamic>> repeatMap,
+  }) {
+    // 1. taskMap에서 사용된 repeatId 목록 추출
+    final Set<dynamic> usedRepeatIds =
+        taskMap.map((e) => e['repeatId']).where((id) => id != null).toSet();
+
+    // 2. repeatMap 중 중복되지 않은 것만 필터링
+    final filteredRepeatMap =
+        repeatMap.where((e) => !usedRepeatIds.contains(e['repeatId'])).toList();
+
+    // 3. 두 리스트 합치기
+    final mergedList = [...taskMap, ...filteredRepeatMap];
+
+    // 4. 정렬: 날짜 오름차순 → 시간 null 우선 → 시간 오름차순
+    mergedList.sort((a, b) {
+      final dateA = DateTime.parse(a['date']);
+      final dateB = DateTime.parse(b['date']);
+
+      if (dateA.isBefore(dateB)) return -1;
+      if (dateA.isAfter(dateB)) return 1;
+
+      // 날짜가 같을 경우
+      final timeA = a['time'];
+      final timeB = b['time'];
+
+      // 시간 null 우선 정렬
+      if (timeA == null && timeB != null) return -1;
+      if (timeA != null && timeB == null) return 1;
+      if (timeA == null && timeB == null) return 0;
+
+      // 시간 비교 (예: "09:00", "14:30" 형식 가정)
+      return timeA.compareTo(timeB);
+    });
+
+    return mergedList;
+  }
+
   // [▶ 삽입 ◀]
   /// 비정기 일정 삽입
   /// @param
   /// - taskGroup : 삽입할 일정과 일정 세부사항 그룹
-  Future<void> insertTask({required TaskGroup taskGroup}) async {
+  Future<bool> insertTask({required TaskGroup taskGroup}) async {
     final db = await DatabaseHelper.instance.database;
     Map<String, dynamic> task = taskGroup.task.toMap();
     List<TaskDetail> taskDetails = taskGroup.taskDetails;
+    int result = 0;
 
     // Task 삽입
-    await db.insert('tasks', task);
+    result += await db.insert('tasks', task);
 
     // TaskDetail 삽입
     Batch batch = db.batch();
@@ -136,6 +239,12 @@ class TaskDao {
           conflictAlgorithm: ConflictAlgorithm.replace);
     }
     await batch.commit();
+
+    if (result > 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /// 반복 일정 삽입
@@ -158,36 +267,6 @@ class TaskDao {
           conflictAlgorithm: ConflictAlgorithm.replace);
     }
     await batch.commit();
-  }
-
-  /// 이거 뭐지?
-  Future<bool> updateTaskIsCompleted(
-      {required String taskId, required int status}) async {
-    print(taskId);
-    print(status);
-    final db = await DatabaseHelper.instance.database;
-
-    final List<Map<String, dynamic>> result = await db.rawQuery(
-      '''
-      SELECT * FROM tasks
-      WHERE taskId = ?
-      ''',
-      [taskId],
-    );
-
-    print(result);
-
-    int count = await db.rawUpdate(
-      '''
-      UPDATE tasks SET isCompleted = ?
-      WHERE taskId = ?
-      ''',
-      [status, taskId],
-    );
-
-    print(count);
-
-    return count > 0; // 성공하면 true
   }
 
   /// 세부 일정 삽입
@@ -249,10 +328,10 @@ class TaskDao {
     final db = await DatabaseHelper.instance.database;
     int count = await db.rawUpdate(
       '''
-    UPDATE task_detail
-    SET title = ?, isCompleted = ?, taskId = ?
-    WHERE detailId = ?
-    ''',
+      UPDATE task_detail
+      SET title = ?, isCompleted = ?, taskId = ?
+      WHERE detailId = ?
+      ''',
       [
         taskDetail.title,
         taskDetail.isCompleted ? 1 : 0,
@@ -273,10 +352,10 @@ class TaskDao {
 
     int count = await db.rawUpdate(
       '''
-    UPDATE repeat_task
-    SET title = ?, startDate = ?, time = ?, color = ?, type = ?, interval = ?
-    WHERE repeatId = ?
-    ''',
+      UPDATE repeat_task
+      SET title = ?, startDate = ?, time = ?, color = ?, type = ?, interval = ?
+      WHERE repeatId = ?
+      ''',
       [
         taskMap['title'],
         taskMap['startDate'],
@@ -346,6 +425,9 @@ class TaskDao {
     return count > 0;
   }
 
+  /// 반복 일정 Id값으로 삭제
+  /// @param
+  /// - repeatId : 삭제할 반복 일정의 Id값
   Future<bool> deleteRepeatTaskById({required String repeatId}) async {
     final db = await DatabaseHelper.instance.database;
     int count = await db.rawDelete(
@@ -359,6 +441,9 @@ class TaskDao {
     return count > 0;
   }
 
+  /// 비정기 일정과 세부 사항 함께 삭제
+  /// @param
+  /// - taskId : 삭제할 비정기 일정의 Id값
   Future<bool> deleteTaskGroup({required String taskId}) async {
     final db = await DatabaseHelper.instance.database;
     int count = await db.rawDelete(

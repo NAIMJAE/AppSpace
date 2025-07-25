@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/small_widget_layout"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#80FFFFFF"
+    android:gravity="top"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <!-- 오늘 일정 -->
+    <TextView
+        android:id="@+id/date_text_today"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="3월 24일"
+        android:textSize="13sp"
+        android:textColor="#000000"/>
+
+    <TextView android:id="@+id/task11" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:visibility="gone"
+        android:textSize="12sp" android:textColor="#000000"/>
+    <TextView android:id="@+id/task12" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:visibility="gone"
+        android:textSize="12sp" android:textColor="#000000"/>
+    <TextView android:id="@+id/task13" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:visibility="gone"
+        android:textSize="12sp" android:textColor="#000000"/>
+    <TextView android:id="@+id/task14" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:visibility="gone"
+        android:textSize="12sp" android:textColor="#000000"/>
+    <TextView android:id="@+id/task15" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:visibility="gone"
+        android:textSize="12sp" android:textColor="#000000"/>
+</LinearLayout>

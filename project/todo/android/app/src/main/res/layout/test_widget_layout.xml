@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/test_widget_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="300dp"
+    android:orientation="vertical"
+    android:background="#80FFFFFF"
+    android:paddingVertical="4dp">
+
+    <!-- 오늘 날짜 -->
+<!--    <TextView-->
+<!--        android:id="@+id/date_title"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="오늘 날짜 (YY.MM.DD)"-->
+<!--        android:textSize="14sp"-->
+<!--        android:textColor="#000000"-->
+<!--        android:layout_weight="0.3"-->
+<!--        android:paddingHorizontal="10dp"-->
+<!--        android:layout_marginBottom="2dp" />-->
+
+    <!-- 바 색상을 줄 방법 모색 -> 미리 만들어두기? -->
+    <!-- RemoteViews 의 제한적인 조작법 때문에 마땅한 방법이 없는데... -->
+    <!-- 직접 조작 가능한 백그라운드를 이용해서 백그라운드로 색상 주기 -->
+    <!-- imageView를 만들어 두고 색상xml을 입히기 -->
+
+    <!-- 오늘 일정 -->
+    <LinearLayout
+        android:id="@+id/task_box_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:gravity="center_vertical">
+
+        <!-- 날짜 -->
+        <LinearLayout
+            android:id="@+id/task_date_1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingHorizontal="10dp"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/today"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="오늘"
+                android:textSize="13sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"/>
+
+            <TextView
+                android:id="@+id/today_date"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textSize="12sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"/>
+        </LinearLayout>
+
+        <!-- 일정 -->
+        <LinearLayout
+            android:id="@+id/task_item_1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/today_event11"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="일정 없음"
+                android:textSize="11sp"
+                android:textColor="#000000"
+                android:drawableStart="@drawable/black_vertical_line"
+                android:drawablePadding="8dp"
+                android:paddingVertical="1dp"
+                android:gravity="start|center_vertical"
+                android:lineSpacingExtra="2dp" />
+
+            <TextView
+                android:id="@+id/today_event12"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="일정 없음"
+                android:textSize="11sp"
+                android:textColor="#000000"
+                android:drawableStart="@drawable/black_vertical_line"
+                android:drawablePadding="8dp"
+                android:paddingVertical="1dp"
+                android:gravity="start|center_vertical"
+                android:lineSpacingExtra="2dp" />
+
+            <TextView
+                android:id="@+id/today_event13"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="일정 없음"
+                android:textSize="11sp"
+                android:textColor="#000000"
+                android:drawableStart="@drawable/black_vertical_line"
+                android:drawablePadding="8dp"
+                android:paddingVertical="1dp"
+                android:gravity="start|center_vertical"
+                android:lineSpacingExtra="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 내일 일정 -->
+    <LinearLayout
+        android:id="@+id/task_box_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/box_background"
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:gravity="center_vertical">
+
+        <!-- 날짜 -->
+        <LinearLayout
+            android:id="@+id/task_date_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingHorizontal="10dp"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tomorrow"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="내일"
+                android:textSize="13sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"/>
+
+            <TextView
+                android:id="@+id/next1_date"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textSize="12sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"/>
+        </LinearLayout>
+
+        <!-- 일정 -->
+        <LinearLayout
+            android:id="@+id/task_item_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/next_event11"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="일정 없음"
+                android:textSize="11sp"
+                android:textColor="#000000"
+                android:drawableStart="@drawable/black_vertical_line"
+                android:drawablePadding="8dp"
+                android:paddingVertical="1dp"
+                android:gravity="start|center_vertical"
+                android:lineSpacingExtra="2dp" />
+
+            <TextView
+                android:id="@+id/next_event12"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="일정 없음"
+                android:textSize="11sp"
+                android:textColor="#000000"
+                android:drawableStart="@drawable/black_vertical_line"
+                android:drawablePadding="8dp"
+                android:paddingVertical="1dp"
+                android:gravity="start|center_vertical"
+                android:lineSpacingExtra="2dp" />
+
+            <TextView
+                android:id="@+id/next_event13"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="일정 없음"
+                android:textSize="11sp"
+                android:textColor="#000000"
+                android:drawableStart="@drawable/black_vertical_line"
+                android:drawablePadding="8dp"
+                android:paddingVertical="1dp"
+                android:gravity="start|center_vertical"
+                android:lineSpacingExtra="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 모레 일정 -->
+    <LinearLayout
+        android:id="@+id/task_box_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:gravity="center_vertical">
+
+        <!-- 날짜 -->
+        <LinearLayout
+            android:id="@+id/task_date_3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingHorizontal="10dp"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/after_tomorrow"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="모레"
+                android:textSize="13sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"/>
+
+            <TextView
+                android:id="@+id/next2_date"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textSize="12sp"
+                android:textColor="#000000"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"/>
+        </LinearLayout>
+
+        <!-- 일정 -->
+        <LinearLayout
+            android:id="@+id/task_item_3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/next_event21"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="일정 없음"
+                android:textSize="11sp"
+                android:textColor="#000000"
+                android:drawableStart="@drawable/black_vertical_line"
+                android:drawablePadding="8dp"
+                android:paddingVertical="1dp"
+                android:gravity="start|center_vertical"
+                android:lineSpacingExtra="2dp" />
+
+            <TextView
+                android:id="@+id/next_event22"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="일정 없음"
+                android:textSize="11sp"
+                android:textColor="#000000"
+                android:drawableStart="@drawable/black_vertical_line"
+                android:drawablePadding="8dp"
+                android:paddingVertical="1dp"
+                android:gravity="start|center_vertical"
+                android:lineSpacingExtra="2dp" />
+
+            <TextView
+                android:id="@+id/next_event23"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="일정 없음"
+                android:textSize="11sp"
+                android:textColor="#000000"
+                android:drawableStart="@drawable/black_vertical_line"
+                android:drawablePadding="8dp"
+                android:paddingVertical="1dp"
+                android:gravity="start|center_vertical"
+                android:lineSpacingExtra="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
